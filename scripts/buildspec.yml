@@ -1,0 +1,14 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+  build:
+    commands:
+      - docker build -t $ECR_URI:latest .
+  post_build:
+    commands:
+      - docker push $ECR_URI:latest
+      - printf '[{"name":"ml-container","imageUri":"%s"}]' $ECR_URI:latest > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
